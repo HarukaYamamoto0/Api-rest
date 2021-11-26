@@ -1,0 +1,23 @@
+{
+  "name": "serie-node",
+  "version": "0.0.1",
+  "description": "api being created following the a rockseat playlist",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "npm": "^8.1.4",
+    "body-parser": "^1.19.0",
+    "mongoose": "^5.13.4",
+    "bcryptjs": "^2.4.3"
+  },
+  "engines": {
+    "node": "16.12.0"
+  },
+  "repository": {
+    "url": "https://github.com/HarukaYamamoto0/serie-node.git"
+  },
+  "license": "MIT"
+}

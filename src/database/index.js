@@ -6,6 +6,5 @@ mongoose.connect(process.env.tokenData, {
   useFindAndModify: false,
   useCreateIndex: true
 });
-mongoose.Promise = global.Promise;
 
 module.exports = mongoose;

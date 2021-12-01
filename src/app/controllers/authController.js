@@ -11,7 +11,7 @@ const User = require("../models/User");
 const router = express.Router();
 
 function generateToken(params) {
-  return jwt.sign(params, authConfig.secrete, {
+  return jwt.sign(params, authConfig.secret, {
     expiresIn: 86400
   });
 }
@@ -125,7 +125,7 @@ router.post("/reset_password", async (req, res) => {
     user.passwordResetExpires = undefined;
     await user.save();
 
-    return res.status(200).send({ user });
+    await res.status(200).send({ user });
   } catch (err) {
     res.status(400).send({ error: "Could not reset password, try again" });
   }

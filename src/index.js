@@ -1,12 +1,20 @@
 const express = require("express");
 const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+async function start() {
+  try {
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
 
-require("./app/controllers/authController.js")(app);
-require("./app/controllers/projectController.js")(app);
+    await require("./database/index.js").start();
+    await require("./app/controllers/index.js")(app);
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log("Server running on port 3000");
-});
+    await app.listen(process.env.PORT || 3000, () => {
+      console.log("Server running on port 3000");
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+start();

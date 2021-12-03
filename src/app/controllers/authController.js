@@ -1,26 +1,25 @@
 const fs = require("fs"),
   path = require("path"),
-  express = require("express"),
   bcrypt = require("bcryptjs"),
   jwt = require("jsonwebtoken"),
   crypto = require("crypto"),
   mailer = require("../../modules/mailer"),
-  authConfig = require("../../config/auth");
+  secret = process.env.secret,
+  { Router } = require("express");
 
 const User = require("../models/User");
-const router = express.Router();
+const router = Router();
 
 function generateToken(params) {
-  return jwt.sign(params, authConfig.secret, {
+  return jwt.sign(params, secret, {
     expiresIn: 86400
   });
 }
 
 
-
 router.post("/register", async (req, res) => {
   const { email } = req.body;
-
+  
   try {
     if (await User.findOne({ email }))
       return res.status(400).send({ error: "User already exists" });
@@ -39,7 +38,10 @@ router.post("/register", async (req, res) => {
 
 router.post("/authenticate", async (req, res) => {
   const { email, password } = req.body;
-
+  
+  if (!email || !password)
+    return res.status(400).send({ error: "Parameters were not passed correctly" });
+  
   const user = await User.findOne({ email }).select("+password");
 
   if (!user) return res.status(400).send({ error: "User not found" });
@@ -90,10 +92,10 @@ router.post("/forgot_password", async (req, res) => {
 
     mailer.sendMail({
       to: email,
-      from: "haruka69@gmail.com",
+      from: "haruka69@gmail.com", // fictitious email
       html: htmlFormatter(buffer, { token })
     })
-      .then(result => res.status(200).send({ ok: "The email has been sent" }))
+      .then(result => res.send({ ok: "The email has been sent" }))
       .catch(err => res.status(400).send({ error: "Failed to send email, try again" }));
   } catch (err) {
     res.status(400).send({ error: "Error on forgot password, try again" });
@@ -125,7 +127,7 @@ router.post("/reset_password", async (req, res) => {
     user.passwordResetExpires = undefined;
     await user.save();
 
-    await res.status(200).send({ user });
+    await res.send({ user });
   } catch (err) {
     res.status(400).send({ error: "Could not reset password, try again" });
   }

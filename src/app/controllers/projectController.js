@@ -1,10 +1,9 @@
-const express = require("express");
+const { Router } = require("express");
 const authMiddleware = require("../middlewares/auth");
-
 const Project = require("../models/Project");
 const Task = require("../models/Task");
 
-const router = express.Router();
+const router = Router();
 router.use(authMiddleware);
 
 // get all the projects
@@ -38,6 +37,9 @@ router.post("/", async (req, res) => {
   try {
     const { title, description, tasks } = req.body;
     
+    if (!title || !description)
+      return res.status(400).send({ error: "To create a project you need a title and description." });
+    
     const project = await Project.create({ title, description, user: req.userId });
     
     if (Array.isArray(tasks))
@@ -59,27 +61,17 @@ router.post("/", async (req, res) => {
 // update a project
 router.post("/:projectId", async (req, res) => {
   try {
-    const { title, description, tasks } = req.body;
+    const { title, description } = req.body;
     
-    const project = await Project.findByIdAndUpdate(req.params.projectId, {
-      title,
-      description
-    }, { new: true });
+    const project = await Project.findOne({ _id: req.params.projectId.trim() });
     
-    if (Array.isArray(tasks)) {
-      project.tasks = [];
-      await Task.deleteMany({ project: project._id });
-      
-      await Promise.all(tasks.map(async task => {
-        const projectTask = new Task({ ...task, project: project._id });
-        
-        await projectTask.save();
-        project.tasks.push(projectTask);
-      }));
-    }
+    if (!project)
+      return res.status(400).send({ error: "Project not found" });
+    
+    project.title = title || project.title;
+    project.description = description || project.description;
     
     await project.save();
-    
     return res.send({ project });
   } catch (err) {
     console.log(err)
@@ -90,8 +82,8 @@ router.post("/:projectId", async (req, res) => {
 // delete a project
 router.delete("/:projectId", async (req, res) => {
   try {
-    await Project.findByIdAndDelete(req.params.projectId);
-    await Task.deleteMany({ project: req.params.projectId });
+    await Project.findByIdAndDelete(req.params.projectId.trim());
+    await Task.deleteMany({ project: req.params.projectId.trim() });
     
     return res.send({ message: "Project deleted successfully" });
   } catch (err) {

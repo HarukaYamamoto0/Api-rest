@@ -1,6 +1,6 @@
-const mongoose = require("../../database");
+const { Schema, model } = require("mongoose");
 
-const ProjectSchema = new mongoose.Schema({
+const ProjectSchema = new Schema({
   title: {
     type: String,
     require: true
@@ -10,12 +10,12 @@ const ProjectSchema = new mongoose.Schema({
     require: true
   },
   user: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "User",
     require: true
   },
   tasks: [{
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "Task",
     require: false
   }],
@@ -30,6 +30,5 @@ title: String
 description: String
 */
 
-const Project = mongoose.model("Project", ProjectSchema);
-
+const Project = model("Project", ProjectSchema);
 module.exports = Project;

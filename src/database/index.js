@@ -1,10 +1,30 @@
-const mongoose = require("mongoose");
+const { connect } = require("mongoose");
+require("dotenv").config();
 
-mongoose.connect(process.env.tokenData, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true
-});
+module.exports = {
+  async start() {
+    try {
+      const urlConnect = process.env.tokenData;
 
-module.exports = mongoose;
+      if (!urlConnect) {
+        throw new Error(
+          "Please insert the tokenData variable into the .env file"
+        );
+      }
+
+      await connect(
+        process.env.tokenData, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+          useCreateIndex: true,
+          useFindAndModify: false
+        }
+      );
+
+      console.log("[DATABASE] - Connected to database");
+    } catch (err) {
+      console.error("[DATABASE] - " + err);
+      process.exit(1);
+    }
+  }
+};
